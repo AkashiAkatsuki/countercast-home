@@ -1,5 +1,4 @@
 ---
-layout: default
 title: Countercast 詳細ルール
 permalink: /rules/
 ---
