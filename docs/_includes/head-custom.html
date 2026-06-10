@@ -1,0 +1,37 @@
+{% include head-custom-theme-colors.html %}
+{% include head-custom-google-analytics.html %}
+
+<style>
+  .mermaid {
+    margin: 2rem 0;
+    overflow-x: auto;
+    text-align: center;
+  }
+
+  .mermaid svg {
+    height: auto;
+    max-width: 100%;
+  }
+</style>
+
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.15.0/dist/mermaid.esm.min.mjs";
+
+  const diagrams = document.querySelectorAll(".language-mermaid");
+
+  diagrams.forEach((diagram) => {
+    const source = diagram.querySelector("code")?.textContent ?? diagram.textContent;
+    const container = document.createElement("div");
+    container.className = "mermaid";
+    container.textContent = source;
+    diagram.replaceWith(container);
+  });
+
+  mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: "strict",
+    theme: "dark",
+  });
+
+  await mermaid.run({ nodes: document.querySelectorAll(".mermaid") });
+</script>
