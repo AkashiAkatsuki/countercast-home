@@ -280,6 +280,56 @@ permalink: /rules/
 
 裏向きの捨て札の内容は確認できません。
 
+## フローチャート
+
+```mermaid
+flowchart TD
+    Start["ターン開始"] --> Draw["両プレイヤーが<br/>カードを1枚引く"]
+    Draw --> ReloadChoice{"攻撃側は<br/>リロードする？"}
+
+    ReloadChoice -- "はい" --> Reload["手札をすべて捨て<br/>山札から5枚引く"]
+    Reload --> WinCheck
+
+    ReloadChoice -- "いいえ" --> Countercast{"カウンターキャスト中？"}
+    Countercast -- "いいえ" --> FaceUpAttack["攻撃カード1〜2枚を<br/>表向きで出す"]
+    Countercast -- "はい" --> FaceDownAttack["攻撃カード1〜2枚を<br/>裏向きで出す"]
+
+    FaceUpAttack --> Defense["防御側がカードを<br/>1枚以上出す"]
+    FaceDownAttack --> Defense
+    Defense --> HiddenAttack{"攻撃カードは<br/>裏向き？"}
+    HiddenAttack -- "はい" --> Reveal["攻撃カードを公開する"]
+    HiddenAttack -- "いいえ" --> Compare
+    Reveal --> Compare["攻撃値と防御値を比較する"]
+
+    Compare --> DefenseSuccess{"攻撃値と防御値が<br/>一致する？"}
+    DefenseSuccess -- "はい" --> ZeroDamage["防御成功<br/>ダメージ値は0"]
+    ZeroDamage --> ContinuingCountercast{"今ターンも<br/>カウンターキャスト？"}
+    ContinuingCountercast -- "いいえ" --> StartCountercast["次のターンを<br/>カウンターキャストにする<br/>連続回数は1"]
+    ContinuingCountercast -- "はい" --> ContinueCountercast["次のターンも<br/>カウンターキャストにする<br/>連続回数を1増やす"]
+    StartCountercast --> Arcana
+    ContinueCountercast --> Arcana
+
+    DefenseSuccess -- "いいえ" --> AttackSuccess["攻撃成功<br/>差分を基本ダメージ値にする"]
+    AttackSuccess --> CountercastDamage{"カウンターキャスト中？"}
+    CountercastDamage -- "いいえ" --> ResolveDamage
+    CountercastDamage -- "はい" --> MultiplyDamage["基本ダメージ値に<br/>連続回数を掛ける"]
+    MultiplyDamage --> ResetCountercast["カウンターキャスト状態と<br/>連続回数をリセットする"]
+    ResetCountercast --> ResolveDamage["防御側がダメージ値分<br/>山札から裏向きで捨てる"]
+
+    ResolveDamage --> Arcana["ダメージ解決後<br/>条件を満たすアルカナ効果を<br/>番号の小さい順・スート効果優先で解決する"]
+    Arcana --> WinCheck{"山札が0枚の<br/>プレイヤーがいる？"}
+    WinCheck -- "はい" --> RoundEnd["ラウンド終了<br/>勝敗または引き分けを決定"]
+    WinCheck -- "いいえ" --> Discard["場のカードをすべて<br/>表向きで捨てる"]
+    Discard --> Switch["攻撃側と防御側を交替する"]
+    Switch --> NextTurn["次のターン"]
+    NextTurn --> Draw
+
+    classDef countercast fill:#493f76,stroke:#b8a7ff,color:#fff;
+    classDef arcana fill:#5b3b20,stroke:#ffc777,color:#fff;
+    class FaceDownAttack,Reveal,StartCountercast,ContinueCountercast,MultiplyDamage,ResetCountercast countercast;
+    class Arcana arcana;
+```
+
 ## Q&A
 
 ### Q. カウンターキャスト状態で、攻撃カードを表向きで出してもいいですか？
